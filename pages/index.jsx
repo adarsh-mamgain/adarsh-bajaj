@@ -20,19 +20,50 @@ export default function Home() {
 
   const filterByName = (event) => {
     const filter = event.target.value.toUpperCase();
-    const filtered = developers.filter((developer) =>
-      developer.name.toUpperCase().includes(filter)
-    );
-    setFilteredDevelopers(filtered);
+    if (filter === "") {
+      setFilteredDevelopers(developers);
+    } else {
+      const filtered = developers.filter(
+        (developer) =>
+          developer &&
+          developer.name &&
+          developer.name.toUpperCase().includes(filter)
+      );
+      setFilteredDevelopers(filtered);
+    }
+  };
+
+
+  const filterBySkills = (event) => {
+    const filter = event.target.value.toUpperCase();
+    if (filter === "") {
+      setFilteredDevelopers(developers);
+    } else {
+      const filtered = developers.filter(
+        (developer) =>
+          developer &&
+          developer.skills &&
+          String(developer.skills).toUpperCase().includes(filter)
+      );
+      setFilteredDevelopers(filtered);
+      console.log(filteredDevelopers);
+    }
   };
 
   const filterByDesignation = (event) => {
     const filter = event.target.value.toUpperCase();
-    const filtered = developers.filter(
-      (developer) =>
-        filter === "" || developer.designation.toUpperCase() === filter
-    );
-    setFilteredDevelopers(filtered);
+    if (filter === "") {
+      setFilteredDevelopers(developers);
+    } else {
+      const filtered = developers.filter(
+        (developer) =>
+          developer &&
+          developer.designation &&
+          String(developer.designation).toUpperCase().includes(filter)
+      );
+      setFilteredDevelopers(filtered);
+      console.log(filteredDevelopers);
+    }
   };
 
   const [selectedProject, setSelectedProject] = useState(null);
@@ -65,8 +96,26 @@ export default function Home() {
           placeholder="Enter name"
           className="p-2 bg-gray-700 text-white rounded-md"
         />
+        <label htmlFor="skills" className="ml-4 mr-2">
+          Filter by Skills:
+        </label>
+        <select
+          id="skills"
+          onChange={filterBySkills}
+          className="p-2 bg-gray-700 text-white rounded-md"
+        >
+          <option value="">All</option>
+          <option value="JavaScript">JavaScript</option>
+          <option value="Python">Python</option>
+          <option value="Java">Java</option>
+          <option value="HTML">HTML</option>
+          <option value="CSS">CSS</option>
+          <option value="Photoshop">Photoshop</option>
+          <option value="Manual Testing">Manual Testing</option>
+          <option value="SQL">SQL</option>
+        </select>
         <label htmlFor="designation" className="ml-4 mr-2">
-          Filter by Designation/Skills:
+          Filter by Designation:
         </label>
         <select
           id="designation"
@@ -75,8 +124,8 @@ export default function Home() {
         >
           <option value="">All</option>
           <option value="Developer">Developer</option>
-          <option value="Designer">Designer</option>
-          <option value="Tester">Tester</option>
+          <option value="QA Engineer">QA Engineer</option>
+          <option value="Project Manager">Project Manager</option>
         </select>
       </div>
       <table>
