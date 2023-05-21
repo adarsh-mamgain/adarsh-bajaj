@@ -7,6 +7,8 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home() {
   const [developers, setDevelopers] = useState([]);
   const [filteredDevelopers, setFilteredDevelopers] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [isSkillsDropdownOpen, setIsSkillsDropdownOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/data")
@@ -19,34 +21,53 @@ export default function Home() {
   }, []);
 
   const filterByName = (event) => {
-    const filter = event.target.value.toUpperCase();
-    if (filter === "") {
-      setFilteredDevelopers(developers);
-    } else {
-      const filtered = developers.filter(
-        (developer) =>
-          developer &&
-          developer.name &&
-          developer.name.toUpperCase().includes(filter)
-      );
-      setFilteredDevelopers(filtered);
-    }
+    const filter = event.target.value.trim().toUpperCase();
+    const filtered = developers.filter((developer) => {
+      const developerName = developer.name ? developer.name.toUpperCase() : "";
+      const developerSkills = developer.skills || [];
+
+      if (filter === "" && selectedSkills.length === 0) {
+        return true; // No name or skills filter, show all developers
+      } else if (filter === "" && selectedSkills.length > 0) {
+        return selectedSkills.some((skill) => developerSkills.includes(skill));
+      } else if (filter !== "" && selectedSkills.length === 0) {
+        return developerName.includes(filter);
+      } else {
+        return (
+          developerName.includes(filter) &&
+          selectedSkills.some((skill) => developerSkills.includes(skill))
+        );
+      }
+    });
+
+    setFilteredDevelopers(filtered);
   };
 
-  const filterBySkills = (event) => {
-    const filter = event.target.value.toUpperCase();
-    if (filter === "") {
-      setFilteredDevelopers(developers);
+  const clearSkillsSelection = () => {
+    setSelectedSkills([]);
+    setFilteredDevelopers(developers);
+  };
+
+  const toggleSkillSelection = (skill) => {
+    const updatedSkills = [...selectedSkills];
+    if (updatedSkills.includes(skill)) {
+      const skillIndex = updatedSkills.indexOf(skill);
+      updatedSkills.splice(skillIndex, 1);
     } else {
-      const filtered = developers.filter(
-        (developer) =>
-          developer &&
-          developer.skills &&
-          String(developer.skills).toUpperCase().includes(filter)
-      );
-      setFilteredDevelopers(filtered);
-      console.log(filteredDevelopers);
+      updatedSkills.push(skill);
     }
+    setSelectedSkills(updatedSkills);
+
+    const filtered = developers.filter((developer) => {
+      if (updatedSkills.length === 0) {
+        return true; // No skills selected, show all developers
+      } else {
+        const developerSkills = developer.skills || [];
+        return updatedSkills.some((skill) => developerSkills.includes(skill));
+      }
+    });
+
+    setFilteredDevelopers(filtered);
   };
 
   const filterByDesignation = (event) => {
@@ -61,7 +82,6 @@ export default function Home() {
           String(developer.designation).toUpperCase().includes(filter)
       );
       setFilteredDevelopers(filtered);
-      console.log(filteredDevelopers);
     }
   };
 
@@ -70,12 +90,12 @@ export default function Home() {
   const openPopup = (e, project) => {
     e.preventDefault();
     setSelectedProject(project);
-    window.addEventListener("click", closePopup);
+    // window.addEventListener("click", closePopup);
     e.stopPropagation();
   };
 
   const closePopup = () => {
-    window.removeEventListener("click", closePopup);
+    // window.removeEventListener("click", closePopup);
     setSelectedProject(null);
   };
 
@@ -98,21 +118,55 @@ export default function Home() {
         <label htmlFor="skills" className="mr-2 mb-2 md:mb-0">
           Filter by Skills:
         </label>
-        <select
-          id="skills"
-          onChange={filterBySkills}
-          className="p-2 bg-gray-700 text-white rounded-md mb-2 md:mb-0 md:mr-4"
-        >
-          <option value="">All</option>
-          <option value="JavaScript">JavaScript</option>
-          <option value="Python">Python</option>
-          <option value="Java">Java</option>
-          <option value="HTML">HTML</option>
-          <option value="CSS">CSS</option>
-          <option value="Photoshop">Photoshop</option>
-          <option value="Manual Testing">Manual Testing</option>
-          <option value="SQL">SQL</option>
-        </select>
+        <div className="relative">
+          <div
+            className="p-2 bg-gray-700 text-white rounded-md mb-2 md:mb-0 md:mr-4 cursor-pointer"
+            onClick={() => setIsSkillsDropdownOpen(!isSkillsDropdownOpen)}
+          >
+            {selectedSkills.length > 0
+              ? `${selectedSkills.length} selected`
+              : "All"}
+          </div>
+          {isSkillsDropdownOpen && (
+            <div className="absolute z-10 bg-white text-gray-800 rounded shadow-md mt-2">
+              <div className="flex flex-col p-2">
+                <label className="inline-flex items-center bg-black w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox"
+                    checked={selectedSkills.length === 0}
+                    onChange={clearSkillsSelection}
+                  />
+                  <span className="ml-2">Clear</span>
+                </label>
+                {[
+                  "JavaScript",
+                  "Python",
+                  "Java",
+                  "HTML",
+                  "CSS",
+                  "Photoshop",
+                  "Manual Testing",
+                  "SQL",
+                ].map((skill) => (
+                  <label
+                    key={skill}
+                    className="inline-flex items-center w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8"
+                  >
+                    <input
+                      type="checkbox"
+                      className="form-checkbox"
+                      checked={selectedSkills.includes(skill)}
+                      onChange={() => toggleSkillSelection(skill)}
+                    />
+                    <span className="ml-2">{skill}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <label htmlFor="designation" className="mr-2 mb-2 md:mb-0">
           Filter by Designation:
         </label>
@@ -185,7 +239,7 @@ export default function Home() {
       {/* The popup */}
       {selectedProject && (
         <div className="popup fixed inset-0 flex items-center justify-center bg-gray-400 bg-opacity-50">
-          <div className="w-full max-w-lg bg-white p-4 rounded shadow">
+          <div className="w-full max-w-lg bg-gray-700 p-4 rounded shadow">
             <div className="mb-4">
               <h2 className="text-xl md:text-2xl mb-2">
                 {selectedProject.name}
