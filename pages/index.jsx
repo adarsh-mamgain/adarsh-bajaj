@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -90,12 +89,10 @@ export default function Home() {
   const openPopup = (e, project) => {
     e.preventDefault();
     setSelectedProject(project);
-    // window.addEventListener("click", closePopup);
     e.stopPropagation();
   };
 
   const closePopup = () => {
-    // window.removeEventListener("click", closePopup);
     setSelectedProject(null);
   };
 
@@ -118,26 +115,26 @@ export default function Home() {
         <label htmlFor="skills" className="mr-2 mb-2 md:mb-0">
           Filter by Skills:
         </label>
-        <div className="relative">
+        <div className="relative w-min-20">
           <div
             className="p-2 bg-gray-700 text-white rounded-md mb-2 md:mb-0 md:mr-4 cursor-pointer"
             onClick={() => setIsSkillsDropdownOpen(!isSkillsDropdownOpen)}
           >
             {selectedSkills.length > 0
-              ? `${selectedSkills.length} selected`
+              ? `${selectedSkills.join(", ")}`
               : "All"}
           </div>
           {isSkillsDropdownOpen && (
             <div className="absolute z-10 bg-white text-gray-800 rounded shadow-md mt-2">
               <div className="flex flex-col p-2">
-                <label className="inline-flex items-center bg-black w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8">
+                <label className="inline-flex items-center">
                   <input
                     type="checkbox"
                     className="form-checkbox"
                     checked={selectedSkills.length === 0}
                     onChange={clearSkillsSelection}
                   />
-                  <span className="ml-2">Clear</span>
+                  <span className="ml-2 font-bold">Clear</span>
                 </label>
                 {[
                   "JavaScript",
@@ -151,7 +148,7 @@ export default function Home() {
                 ].map((skill) => (
                   <label
                     key={skill}
-                    className="inline-flex items-center w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8"
+                    className="inline-flex items-center"
                   >
                     <input
                       type="checkbox"
