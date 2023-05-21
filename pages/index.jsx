@@ -120,9 +120,7 @@ export default function Home() {
             className="p-2 bg-gray-700 text-white rounded-md mb-2 md:mb-0 md:mr-4 cursor-pointer"
             onClick={() => setIsSkillsDropdownOpen(!isSkillsDropdownOpen)}
           >
-            {selectedSkills.length > 0
-              ? `${selectedSkills.join(", ")}`
-              : "All"}
+            {selectedSkills.length > 0 ? `${selectedSkills.join(", ")}` : "All"}
           </div>
           {isSkillsDropdownOpen && (
             <div className="absolute z-10 bg-white text-gray-800 rounded shadow-md mt-2">
@@ -148,7 +146,7 @@ export default function Home() {
                 ].map((skill) => (
                   <label
                     key={skill}
-                    className="inline-flex items-center"
+                    className="inline-flex items-center py-0.5"
                   >
                     <input
                       type="checkbox"
@@ -259,14 +257,30 @@ export default function Home() {
               <h3 className="text-lg md:text-xl mb-2">Tasks:</h3>
               <ul>
                 {selectedProject.tasks.map((task, index) => (
-                  <li key={index}>
-                    {task.name} - {task.status}
+                  <li key={index} className="py-1">
+                    <span>{task.name} - </span>
+                    <span
+                      className={`${
+                        task.status === "Pending"
+                          ? "bg-yellow-500"
+                          : task.status === "In Progress"
+                          ? "bg-blue-500"
+                          : task.status === "Completed"
+                          ? "bg-green-500"
+                          : ""
+                      } px-3 py-0.5 rounded`}
+                    >
+                      {task.status}
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="mb-2">
-              <button className="text-red-500" onClick={closePopup}>
+            <div className="mt-2 mb-2">
+              <button
+                className="text-white bg-red-500 px-3 py-1 hover:bg-opacity-80 rounded"
+                onClick={closePopup}
+              >
                 Close
               </button>
             </div>
